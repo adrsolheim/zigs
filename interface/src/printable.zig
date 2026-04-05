@@ -25,6 +25,7 @@ const Jpeg = struct {
     fn print(printable: *Printable) io.Writer.Error!void {
         const self: *Jpeg = @fieldParentPtr("printable", printable);
         try self.writer.print("Jpeg(h={d}, w={d}, color_space{s})\n", .{self.h, self.w, self.color_space});
+        try self.writer.flush();
     }
 
     pub fn init(writer: *io.Writer, h: u8, w: u8, color_space: []const u8) Jpeg {
