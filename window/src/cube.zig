@@ -4,20 +4,29 @@ const rl = @import("raylib");
 const rg = @import("raygui");
 
 
-pub fn drawCube(cubeSize: u16, x: u16, y: u16, _: u16, _: u16) void {
+pub fn drawCube(cubeSize: u16, x: u16, y: u16, _: u16, _: u16, angle: u16) void {
     rl.clearBackground(.white);
-    var z: u16 = 4;
+    const z1: u16 = 1;
+    const z2: u16 = 2;
+    const radians: f16 = @floatFromInt(angle);
 
     // front facing (z=1) - points defined clockwise
-    const p1: rl.Vector2 = .{.x=projected(z, x + (0*cubeSize)), .y=projected(z, y + (0*cubeSize))};
-    const p2: rl.Vector2 = .{.x=projected(z, x + (0*cubeSize)), .y=projected(z, y + (1*cubeSize))};
-    const p3: rl.Vector2 = .{.x=projected(z, x + (1*cubeSize)), .y=projected(z, y + (1*cubeSize))};
-    const p4: rl.Vector2 = .{.x=projected(z, x + (1*cubeSize)), .y=projected(z, y + (0*cubeSize))};
-    z = z+1;
-    const p5: rl.Vector2 = .{.x=projected(z, x + (0*cubeSize)), .y=projected(z, y + (0*cubeSize))};
-    const p6: rl.Vector2 = .{.x=projected(z, x + (0*cubeSize)), .y=projected(z, y + (1*cubeSize))};
-    const p7: rl.Vector2 = .{.x=projected(z, x + (1*cubeSize)), .y=projected(z, y + (1*cubeSize))};
-    const p8: rl.Vector2 = .{.x=projected(z, x + (1*cubeSize)), .y=projected(z, y + (0*cubeSize))};
+    var p1: rl.Vector2 = .{.x=projected(z1, x + (0*cubeSize)), .y=projected(z1, y + (0*cubeSize))};
+    var p2: rl.Vector2 = .{.x=projected(z1, x + (0*cubeSize)), .y=projected(z1, y + (1*cubeSize))};
+    var p3: rl.Vector2 = .{.x=projected(z1, x + (1*cubeSize)), .y=projected(z1, y + (1*cubeSize))};
+    var p4: rl.Vector2 = .{.x=projected(z1, x + (1*cubeSize)), .y=projected(z1, y + (0*cubeSize))};
+    var p5: rl.Vector2 = .{.x=projected(z2, x + (0*cubeSize)), .y=projected(z2, y + (0*cubeSize))};
+    var p6: rl.Vector2 = .{.x=projected(z2, x + (0*cubeSize)), .y=projected(z2, y + (1*cubeSize))};
+    var p7: rl.Vector2 = .{.x=projected(z2, x + (1*cubeSize)), .y=projected(z2, y + (1*cubeSize))};
+    var p8: rl.Vector2 = .{.x=projected(z2, x + (1*cubeSize)), .y=projected(z2, y + (0*cubeSize))};
+    rotate(radians, &p1);
+    rotate(radians, &p2);
+    rotate(radians, &p3);
+    rotate(radians, &p4);
+    rotate(radians, &p5);
+    rotate(radians, &p6);
+    rotate(radians, &p7);
+    rotate(radians, &p8);
 
     // front side
     rl.drawPixelV(p1, .red);
@@ -55,4 +64,14 @@ pub fn drawCube(cubeSize: u16, x: u16, y: u16, _: u16, _: u16) void {
 
 fn projected(z: u16, point: u16) u16 {
     return point/z;
+}
+
+fn rotate(radians: f16, vector: *rl.Vector2) void {
+    const angle: f16 = std.math.radiansToDegrees(radians);
+    if (angle == 0) return;
+
+    const x = vector.x;
+    const y = vector.y;
+    vector.x = x * @cos(angle) - y * @sin(angle);
+    //vector.y = x * @sin(angle) + y * @cos(angle);
 }
