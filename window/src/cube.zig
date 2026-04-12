@@ -4,11 +4,10 @@ const rl = @import("raylib");
 const rg = @import("raygui");
 
 
-pub fn drawCube(cubeSize: u16, x: u16, y: u16, _: u16, _: u16, angle: u16) void {
+pub fn drawCube(cubeSize: f16, x: f16, y: f16, _: f16, _: f16, radians: f16) void {
     rl.clearBackground(.white);
-    const z1: u16 = 1;
-    const z2: u16 = 2;
-    const radians: f16 = @floatFromInt(angle);
+    const z1: f16 = 1;
+    const z2: f16 = 1.025;
 
     // front facing (z=1) - points defined clockwise
     var p1: rl.Vector2 = .{.x=projected(z1, x + (0*cubeSize)), .y=projected(z1, y + (0*cubeSize))};
@@ -62,16 +61,16 @@ pub fn drawCube(cubeSize: u16, x: u16, y: u16, _: u16, _: u16, angle: u16) void 
     //const p8: rl.Vector2 = .{1,0};
 }
 
-fn projected(z: u16, point: u16) u16 {
+//fn projected(_: f16, point: f16) f16 {
+//    return point;
+//}
+fn projected(z: f16, point: f16) f16 {
     return point/z;
 }
 
 fn rotate(radians: f16, vector: *rl.Vector2) void {
-    const angle: f16 = std.math.radiansToDegrees(radians);
-    if (angle == 0) return;
-
     const x = vector.x;
     const y = vector.y;
-    vector.x = x * @cos(angle) - y * @sin(angle);
-    //vector.y = x * @sin(angle) + y * @cos(angle);
+    vector.x = x * @cos(radians) - y * @sin(radians);
+    vector.y = x * @sin(radians) + y * @cos(radians);
 }

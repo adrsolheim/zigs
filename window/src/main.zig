@@ -6,20 +6,20 @@ const rg = @import("raygui");
 const cube = @import("cube.zig");
 
 pub fn main() !void {
-    const screenWidth = 800;
-    const screenHeight = 450;
+    const screenWidth: u16 = 800;
+    const screenHeight: u16 = 450;
 
     rl.initWindow(screenWidth, screenHeight, "raylib-zig [core] example - basic window");
     defer rl.closeWindow(); // Close window and OpenGL context
 
     rl.setTargetFPS(1);
     //--------------------------------------------------------------------------------------
-    const cubeSize = 20;
+    const cubeSize: u16 = 20;
     //var x: u16 = (screenWidth/2) - (cubeSize/2);  // center
     //var y: u16 = (screenHeight/2) - (cubeSize/2); // center
-    var x: u16 = 0;
-    var y: u16 = 0;
-    var angle: u16 = 0;
+    var x: f16 = 400;
+    var y: f16 = 200;
+    var angle: f16 = 0;
 
     // Main game loop
     while (!rl.windowShouldClose()) { // Detect window close button or ESC key
@@ -32,9 +32,10 @@ pub fn main() !void {
         //----------------------------------------------------------------------------------
         rl.beginDrawing();
         defer rl.endDrawing();
-        cube.drawCube(cubeSize, x, y, screenWidth, screenHeight, angle);
-        x = (x + 1) % screenWidth;
-        y = (y + 1) % screenHeight;
-        angle +%= 1;
+        cube.drawCube(cubeSize, x, y, screenWidth, screenHeight, std.math.degreesToRadians(angle));
+        // keep positions within boundaries
+        x = if ((x + 1) < screenWidth) (x + 1) else (x + 1) - screenWidth;
+        y = if ((y + 1) < screenHeight) (y + 1) else (y + 1) - screenHeight;
+        angle = if ((angle + 1) <= 360) (angle + 1) else (angle + 1) - 360;
     }
 }
