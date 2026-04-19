@@ -12,7 +12,7 @@ pub fn main() !void {
     rl.initWindow(screenWidth, screenHeight, "raylib-zig [core] example - basic window");
     defer rl.closeWindow(); // Close window and OpenGL context
 
-    rl.setTargetFPS(1);
+    rl.setTargetFPS(60);
     //--------------------------------------------------------------------------------------
     const cubeSize: u16 = 20;
     //var x: u16 = (screenWidth/2) - (cubeSize/2);  // center
@@ -20,6 +20,14 @@ pub fn main() !void {
     var x: f16 = 400;
     var y: f16 = 200;
     var angle: f16 = 0;
+    const camera: rl.Camera3D = .{
+        .position = .{ .x = 5.0, .y = 5.0, .z = 5.0 },
+        .target = .{ .x = 0.0, .y = 0.0, .z = 0.0 },
+        //.target = .{ .x = 0.0, .y = 2.0, .z = 0.0 },
+        .up = .{ .x = 0.0, .y = 1.0, .z = 0.0 },
+        .fovy = 45.0,
+        .projection = .perspective,
+    };
 
     // Main game loop
     while (!rl.windowShouldClose()) { // Detect window close button or ESC key
@@ -32,6 +40,9 @@ pub fn main() !void {
         //----------------------------------------------------------------------------------
         rl.beginDrawing();
         defer rl.endDrawing();
+        rl.beginMode3D(camera);
+        defer rl.endMode3D();
+
         cube.drawCube(cubeSize, x, y, screenWidth, screenHeight, std.math.degreesToRadians(angle));
         // keep positions within boundaries
         x = if ((x + 1) < screenWidth) (x + 1) else (x + 1) - screenWidth;

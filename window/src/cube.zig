@@ -11,13 +11,15 @@ var p5: rl.Vector3 = undefined;
 var p6: rl.Vector3 = undefined;
 var p7: rl.Vector3 = undefined;
 var p8: rl.Vector3 = undefined;
+var ang: f16 = 0.2;
 
 
 pub fn drawCube(_: f16, _: f16, _: f16, _: f16, _: f16, _: f16) void {
     rl.clearBackground(.white);
     createCubeAtOrigin();
-    scale(100);
-    shiftCube(200, 200, 0);
+    rotateCubeAroundY();
+    scale(2);
+    //shiftCube(200, 200, 20);
     renderCube();
     //const z1: f16 = 1;
     //const z2: f16 = 1.025;
@@ -149,9 +151,24 @@ fn projected(z: f16, point: f16) f16 {
     return point/z;
 }
 
-fn rotate(radians: f16, vector: *rl.Vector2) void {
+fn rotateCubeAroundY() void {
+    rotateY(ang, &p1);
+    rotateY(ang, &p2);
+    rotateY(ang, &p3);
+    rotateY(ang, &p4);
+    rotateY(ang, &p5);
+    rotateY(ang, &p6);
+    rotateY(ang, &p7);
+    rotateY(ang, &p8);
+    ang += 0.1;
+}
+
+fn rotateY(radians: f16, vector: *rl.Vector3) void {
     const x = vector.x;
-    const y = vector.y;
-    vector.x = x * @cos(radians) - y * @sin(radians);
-    vector.y = x * @sin(radians) + y * @cos(radians);
+    const z = vector.z;
+    const sin = @sin(radians);
+    const cos = @cos(radians);
+
+    vector.x = ( x * cos) + (z * sin);
+    vector.z = (-x * sin) + (z * cos);
 }
