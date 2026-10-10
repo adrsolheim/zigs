@@ -1,5 +1,6 @@
 const std = @import("std");
 const Server = @import("server.zig").Server;
+const RequestHandler = @import("request_handler.zig").RequestHandler;
 
 
 pub fn main(init: std.process.Init) !void {
@@ -8,6 +9,9 @@ pub fn main(init: std.process.Init) !void {
     std.debug.print("Waiting for connections..\n", .{});
     var server: std.Io.net.Server = try static_server.listen();
     const connection = try server.accept(io);
-    std.debug.print("Connection accepted.\n", .{});
     defer connection.close(io);
+
+    std.debug.print("Connection accepted.\n", .{});
+    var buffer: [1024]u8 = undefined;
+    try RequestHandler.handleRequest(io, connection, &buffer);
 }
