@@ -21,6 +21,10 @@ pub const Server = struct {
     }
 
     pub fn listen(self: Server) !std.Io.net.Server {
-        return try self.addr.listen(self.io, net.IpAddress.ListenOptions{.mode = net.Socket.Mode.stream, .protocol = net.Protocol.tcp});
+        return try self.addr.listen(self.io, net.IpAddress.ListenOptions{
+            .mode = net.Socket.Mode.stream, 
+            .protocol = net.Protocol.tcp,
+            .reuse_address = true, // easy restart, unbind addr/port immediately
+        });
     }
 };
