@@ -3,13 +3,18 @@ const http = @import("http_message.zig");
 const HttpResponse = http.HttpResponse;
 const HttpRequest  = http.HttpRequest;
 
+pub const SINGLE_HEADER_LIMIT: usize = 4 * 1024;
 
 const ClientError = error {
-    BAD_REQUEST
+    BAD_REQUEST,        // 400
+    HEADERS_TOO_LARGE,  // 431
+    URI_TOO_LONG        // 414
+
 };
 
 const ServerError = error {
-    INTERNAL_SERVER_ERROR
+    INTERNAL_SERVER_ERROR,      // 500
+    HTTP_VERSION_NOT_SUPPORTED, // 505
 };
 
 // 1. parse_request  --> INTERNAL_SERVER_ERROR || HttpRequest
@@ -22,8 +27,20 @@ const ServerError = error {
 
 pub const RequestHandler = struct {
     
-    pub fn parseRequest(io: std.Io, connection: std.Io.net.Stream, buffer: []u8) HttpRequest {
-        
+    // header_alloc -> fixedsizebufferallocator: headers are typically small and bounded in size
+    // body_alloc -> heap allocator: request body can vary widely in size 
+    pub fn parseRequest(io: std.Io, connection: std.Io.net.Stream, header_alloc: std.mem.Allocator, body_alloc: std.mem.Allocator) !HttpRequest {
+        var buf: [SINGLE_HEADER_LIMIT]u8 = undefined;
+        var reader: std.Io.net.Stream.Reader = connection.reader(io, &buf);
+        const interface: *std.Io.Reader = &reader.interface;
+        const request_line = interface.takeDelimiterInclusive('\n') catch |err| {
+            if (err == error.StreamTooLong) {
+                return ClientError.HEADERS_TOO_LARGE;
+            }
+            std.debug.print("Error reading request-line: {any}\n", err);
+            return ServerError.INTERNAL_SERVER_ERROR;
+        };
+
     }
 
     pub fn handleRequest(io: std.Io, connection: std.Io.net.Stream, buffer: []u8) void {
