@@ -24,6 +24,26 @@ const ServerError = error {
 //  b) map method + path to function
 //  b) map result to HttpResponse
 
+const HttpToken = enum {
+    http_method_get,
+    http_method_post,
+    http_method_patch,
+    http_method_put,
+    http_method_delete,
+    http_method_options,
+    http_versoin_0_9,
+    http_versoin_1_0,
+    http_version_1_1,
+    http_version_2,
+    http_version_3,
+};
+
+const RequestLine = union {
+    method: HttpToken,
+    path: []u8,
+    version: HttpToken,
+};
+
 
 pub const RequestHandler = struct {
     
@@ -40,8 +60,19 @@ pub const RequestHandler = struct {
             std.debug.print("Error reading request-line: {any}\n", err);
             return ServerError.INTERNAL_SERVER_ERROR;
         };
-
     }
+    fn parseRequestLine(request_line: []const u8) ClientError!RequestLine {
+        var it: std.mem.SplitIterator(u8, .scalar) = std.mem.splitScalar(u8, request_line, ' ');
+        const method = it.first();
+        const uri = it.next();
+        const version = it.next();
+        if (method == null or uri == null or version == null) {
+            std.debug.print("Incomplete Request-line: {s} {s} {s}", .{method, uri, version});
+            return ClientError;
+        }
+    }
+
+
 
     pub fn handleRequest(io: std.Io, connection: std.Io.net.Stream, buffer: []u8) void {
         readRequest(io, connection, buffer) catch |err| {
